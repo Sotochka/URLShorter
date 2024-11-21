@@ -1,4 +1,5 @@
 ﻿using URLShorter.Backend.Data;
+using URLShorter.Backend.Repositories.Interfaces;
 
 namespace URLShorter.Backend.Repositories.Repositories;
 

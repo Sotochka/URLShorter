@@ -1,11 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using URLShorter.Backend.Common.Enums;
+using URLShorter.Backend.Models.Enums;
 using URLShorter.Backend.Common.Interfaces;
-using URLShorter.Backend.Data.Entities;
 using URLShorter.Backend.Models.DTOs.AuthDto;
-using URLShorter.Backend.Repositories;
+using URLShorter.Backend.Models.Entities;
 using URLShorter.Backend.Repositories.Interfaces;
 
 namespace URLShorter.Backend.Controllers;
@@ -42,6 +40,12 @@ public class AuthController(IUnitOfWork unitOfWork, IUserRepository userReposito
         }
 
         return Ok(new AuthResponseDto(jwtGenerator.GenerateJwtToken(user), user.Username));
+    }
+    
+    public async Task<IActionResult> Logout()
+    {
+        await HttpContext.SignOutAsync("ExampleSession");
+        return RedirectToAction("Login", "Auth");
     }
     
     private static string Hash(string password) =>

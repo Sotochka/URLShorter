@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
-using URLShorter.Backend.Data.Entities;
+using URLShorter.Backend.Models.Entities;
 
 namespace URLShorter.Backend.Data;
 

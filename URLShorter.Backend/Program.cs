@@ -2,12 +2,10 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
 using URLShorter.Backend.Common.Interfaces;
-using URLShorter.Backend.Common.Middleware.ExceptionHandler;
+using URLShorter.Backend.Middleware.ExceptionHandler;
 using URLShorter.Backend.Common.Services;
 using URLShorter.Backend.Data;
-using URLShorter.Backend.Repositories;
 using URLShorter.Backend.Repositories.Interfaces;
 using URLShorter.Backend.Repositories.Repositories;
 
@@ -46,6 +44,7 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUrlRepository, UrlRepository>();
 builder.Services.AddScoped<IJwtGenerator, JwtGenerator>();
+builder.Services.AddScoped<IUrlService, UrlService>();
 
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
@@ -61,6 +60,16 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseSpa(spa =>
+{
+    spa.Options.SourcePath = "client-app";
+
+    if (env.IsDevelopment())
+    {
+        spa.UseReactDevelopmentServer(npmScript: "start");
+    }
+});
 
 app.MapControllers();
 app.Run();

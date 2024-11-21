@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
-namespace URLShorter.Backend.Common.Middleware.ExceptionHandler;
+namespace URLShorter.Backend.Middleware.ExceptionHandler;
 
 public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IExceptionHandler
 {

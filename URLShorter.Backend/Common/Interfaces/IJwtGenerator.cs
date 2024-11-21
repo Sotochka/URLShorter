@@ -1,4 +1,4 @@
-﻿using URLShorter.Backend.Data.Entities;
+﻿using URLShorter.Backend.Models.Entities;
 
 namespace URLShorter.Backend.Common.Interfaces;
 

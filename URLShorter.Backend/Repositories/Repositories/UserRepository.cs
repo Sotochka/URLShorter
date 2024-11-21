@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using URLShorter.Backend.Data;
-using URLShorter.Backend.Data.Entities;
+using URLShorter.Backend.Models.Entities;
 using URLShorter.Backend.Repositories.Interfaces;
 
 namespace URLShorter.Backend.Repositories.Repositories;

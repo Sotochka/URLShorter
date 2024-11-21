@@ -1,4 +1,4 @@
-﻿namespace URLShorter.Backend.Common.Enums;
+﻿namespace URLShorter.Backend.Models.Enums;
 
 public enum Roles
 {

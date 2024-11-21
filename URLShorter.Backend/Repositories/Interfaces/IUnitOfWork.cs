@@ -1,6 +1,4 @@
-﻿using URLShorter.Backend.Data;
-
-namespace URLShorter.Backend.Repositories;
+﻿namespace URLShorter.Backend.Repositories.Interfaces;
 
 public interface IUnitOfWork
 {

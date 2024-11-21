@@ -1,4 +1,4 @@
-﻿namespace URLShorter.Backend.Data.Entities;
+﻿namespace URLShorter.Backend.Models.Entities;
 
 public class User
 {
