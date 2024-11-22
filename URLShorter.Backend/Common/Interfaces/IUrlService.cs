@@ -5,8 +5,9 @@ namespace URLShorter.Backend.Common.Interfaces;
 
 public interface IUrlService
 {
-    Task<Url> GetUrlById(Guid id);
-    Task<string> CreateUrl(CreateUrlDto createUrlDto, Guid userId);
-    Task<Url> GetUrlByOriginalUrl(string shortUrl);
+    Task<UrlResponseDto> GetUrlById(Guid id);
+    Task<IEnumerable<UrlResponseDto>> GetAllUrls();
+    Task<UrlResponseDto> CreateUrl(CreateUrlDto createUrlDto, Guid userId);
+    Task<UrlResponseDto> GetUrlByOriginalUrl(string shortUrl);
     Task DeleteUrl(Guid id);
 }

@@ -9,4 +9,5 @@ public interface IUrlRepository
     public Task<Url> GetUrlById(Guid id);
     public void Insert(Url url);
     public void Remove(Url url);
+    Task<IEnumerable<Url>> GetAllUrls();
 }

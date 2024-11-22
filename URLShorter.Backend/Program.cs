@@ -11,9 +11,20 @@ using URLShorter.Backend.Repositories.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReactApp", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173") // React development server URL
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddControllers();
+
 builder.Services.AddAuthentication(cfg =>
 {
     cfg.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -40,12 +51,13 @@ builder.Services.AddAuthorization();
 builder.Services.AddDbContext<UrlShorterDbContext>(options => 
     options.UseNpgsql(builder.Configuration.GetConnectionString("PostgresConnectionString")));
 
+
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUrlRepository, UrlRepository>();
 builder.Services.AddScoped<IJwtGenerator, JwtGenerator>();
 builder.Services.AddScoped<IUrlService, UrlService>();
-
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
@@ -61,15 +73,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseSpa(spa =>
-{
-    spa.Options.SourcePath = "client-app";
-
-    if (env.IsDevelopment())
-    {
-        spa.UseReactDevelopmentServer(npmScript: "start");
-    }
-});
+app.UseCors("AllowReactApp");
 
 app.MapControllers();
 app.Run();

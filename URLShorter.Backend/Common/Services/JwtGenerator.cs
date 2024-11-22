@@ -4,6 +4,7 @@ using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using URLShorter.Backend.Common.Interfaces;
 using URLShorter.Backend.Models.Entities;
+using URLShorter.Backend.Models.Enums;
 
 namespace URLShorter.Backend.Common.Services;
 
@@ -15,7 +16,8 @@ public class JwtGenerator(IConfiguration configuration) : IJwtGenerator
         {
             new Claim(JwtRegisteredClaimNames.NameId, user.Id.ToString()),
             new Claim(JwtRegisteredClaimNames.Email, user.Email),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new Claim(ClaimTypes.Role, ((Roles)user.RoleId).ToString())
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]));

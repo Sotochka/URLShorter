@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using URLShorter.Backend.Common.Interfaces;
 using URLShorter.Backend.Models.DTOs.UrlDto;
-using URLShorter.Backend.Models.Entities;
 using URLShorter.Backend.Repositories.Interfaces;
 
 namespace URLShorter.Backend.Controllers;
@@ -15,25 +14,26 @@ public class UrlController(IUrlRepository urlRepository, IUnitOfWork unitOfWork,
     [HttpGet("{id}")]
     public async Task<IActionResult> GetUrlById(Guid id)
     {
-        throw new NotImplementedException();
+        var url = await urlService.GetUrlById(id);
+        return Ok(url);
+    }
+
+    [HttpGet("all")]
+    public async Task<IActionResult> GetAllUrls()
+    {
+        var urls = await urlService.GetAllUrls();
+        return Ok(urls);
     }
 
     [Authorize]
-    [HttpPost("{create-url}")]
+    [HttpPost("create-url")]
     public async Task<IActionResult> CreateUrl([FromBody] CreateUrlDto createUrlDto)
     {
         var userId = Validate(User);
-        var url = await urlService.GetUrlByOriginalUrl(createUrlDto.OriginalUrl);
-        if (url is not null) return Ok(url);
+        
         var shortUrl = await urlService.CreateUrl(createUrlDto, userId);
-        var newUrl = new Url
-        {
-            OriginalURL = createUrlDto.OriginalUrl,
-            ShortenedURL = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/url/api/{shortUrl}",
-            CreatedAt = DateTime.UtcNow,
-            UserId = userId
-        };
-        return Ok(newUrl);
+        
+        return Ok(shortUrl);
     }
 
     [HttpGet("api/{shortUrl}")]
@@ -49,13 +49,16 @@ public class UrlController(IUrlRepository urlRepository, IUnitOfWork unitOfWork,
     public async Task<IActionResult> DeleteUrl(Guid id)
     {
         var userId = Validate(User);
+        
         var url = await urlRepository.GetUrlById(id);
-        if(url.UserId != userId)
+        
+        if (url.UserId != userId)
         {
             return Unauthorized();
         }
-
+        
         urlRepository.Remove(url);
+        
         await unitOfWork.SaveChangesAsync();
 
         return NoContent();

@@ -35,4 +35,10 @@ public class UrlRepository(UrlShorterDbContext dbContext) : IUrlRepository
     {
         dbContext.Urls.Remove(url);
     }
+
+    public async Task<IEnumerable<Url>> GetAllUrls()
+    {
+        var urls = await dbContext.Urls.ToListAsync();
+        return urls;
+    }
 }

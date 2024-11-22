@@ -1,3 +1,3 @@
 namespace URLShorter.Backend.Models.DTOs.UrlDto;
 
-public record UrlResponseDto(string OriginalURL, string ShortenedURL, DateTime CreatedAt);
+public record UrlResponseDto(Guid id, string OriginalURL, string ShortenedURL, DateTime CreatedAt, Guid UserId);

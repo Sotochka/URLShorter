@@ -1,10 +1,11 @@
-﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using URLShorter.Backend.Models.Enums;
 using URLShorter.Backend.Common.Interfaces;
 using URLShorter.Backend.Models.DTOs.AuthDto;
 using URLShorter.Backend.Models.Entities;
 using URLShorter.Backend.Repositories.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace URLShorter.Backend.Controllers;
 
@@ -24,6 +25,7 @@ public class AuthController(IUnitOfWork unitOfWork, IUserRepository userReposito
         };
 
         userRepository.Insert(user);
+        
         await unitOfWork.SaveChangesAsync();
 
         return Ok(new AuthResponseDto(jwtGenerator.GenerateJwtToken(user), user.Username));
@@ -41,11 +43,13 @@ public class AuthController(IUnitOfWork unitOfWork, IUserRepository userReposito
 
         return Ok(new AuthResponseDto(jwtGenerator.GenerateJwtToken(user), user.Username));
     }
-    
-    public async Task<IActionResult> Logout()
+
+    [Authorize]
+    [HttpGet("get-role")]
+    public IActionResult GetRole()
     {
-        await HttpContext.SignOutAsync("ExampleSession");
-        return RedirectToAction("Login", "Auth");
+        var role = User.FindFirst(ClaimTypes.Role)?.Value; // Extract role from claims
+        return Ok(new { Role = role });
     }
     
     private static string Hash(string password) =>

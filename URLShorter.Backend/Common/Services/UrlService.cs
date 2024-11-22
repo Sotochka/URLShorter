@@ -1,4 +1,3 @@
-using System.Text;
 using URLShorter.Backend.Common.Interfaces;
 using URLShorter.Backend.Models.DTOs.UrlDto;
 using URLShorter.Backend.Models.Entities;
@@ -6,47 +5,90 @@ using URLShorter.Backend.Repositories.Interfaces;
 
 namespace URLShorter.Backend.Common.Services;
 
-public class UrlService(IUrlRepository urlRepository, IUnitOfWork unitOfWork) : IUrlService
+public class UrlService(IUrlRepository urlRepository, IUnitOfWork unitOfWork, IHttpContextAccessor httpContextAccessor) : IUrlService
 {
-    public async Task<Url> GetUrlById(Guid id)
+    public async Task<UrlResponseDto> GetUrlById(Guid id)
     {
         var url = await urlRepository.GetUrlById(id);
-        return url;
+
+        var urlDto = new UrlResponseDto(
+            url.Id,
+            url.OriginalURL,
+            $"{httpContextAccessor.HttpContext.Request.Scheme}://{httpContextAccessor.HttpContext.Request.Host}/url/api/{url.ShortenedURL}",
+            url.CreatedAt,
+            url.UserId);
+        
+        return urlDto;
     }
 
-    public async Task<Url> GetUrlByOriginalUrl(string shortUrl)
+    public async Task<IEnumerable<UrlResponseDto>> GetAllUrls()
+    {
+        var urls = await urlRepository.GetAllUrls();
+
+        return urls.Select(url => new UrlResponseDto(
+            url.Id,
+            url.OriginalURL,
+            $"{httpContextAccessor.HttpContext.Request.Scheme}://{httpContextAccessor.HttpContext.Request.Host}/url/api/{url.ShortenedURL}",
+            url.CreatedAt, url.UserId)).ToList();
+    }
+
+    public async Task<UrlResponseDto> GetUrlByOriginalUrl(string shortUrl)
     {
         var url = await urlRepository.GetUrlByShortUrl(shortUrl);
-        return url;
+        
+        var urlDto = new UrlResponseDto(
+            url.Id,
+            url.OriginalURL,
+            $"{httpContextAccessor.HttpContext.Request.Scheme}://{httpContextAccessor.HttpContext.Request.Host}/url/api/{url.ShortenedURL}",
+            DateTime.UtcNow,
+            url.UserId);
+        
+        return urlDto;
     }
-    public async Task<string> CreateUrl(CreateUrlDto createUrlDto, Guid userId)
+    public async Task<UrlResponseDto> CreateUrl(CreateUrlDto createUrlDto, Guid userId)
     {
         var existedUrl = await urlRepository.GetUrlByOriginalUrl(createUrlDto.OriginalUrl);
-        if (existedUrl is not null)
+        
+        if (existedUrl != null)
         {
-            return existedUrl.ShortenedURL;
+            throw new Exception("Url already exists");
         }
+        
         var shortUrl = GenerateShortUrl(createUrlDto.OriginalUrl);
+        
         var url = new Url
         {
             OriginalURL = createUrlDto.OriginalUrl,
             ShortenedURL = shortUrl,
-            CreatedAt = DateTime.UtcNow,
-            UserId = userId
+            UserId = userId,
+            CreatedAt = DateTime.UtcNow
         };
+        
+        var urlDto = new UrlResponseDto(
+            url.Id,
+            url.OriginalURL,
+            $"{httpContextAccessor.HttpContext.Request.Scheme}://{httpContextAccessor.HttpContext.Request.Host}/url/api/{url.ShortenedURL}",
+            DateTime.UtcNow,
+            url.UserId);
+        
         urlRepository.Insert(url);
+        
         await unitOfWork.SaveChangesAsync();
-        return shortUrl;
+        
+        return urlDto;
     }
 
     public async Task DeleteUrl(Guid id)
     {
         var url = await urlRepository.GetUrlById(id);
+        
         if (url is null)
         {
             throw new Exception("Url not found");
         }
+        
         urlRepository.Remove(url);
+        
         await unitOfWork.SaveChangesAsync();
     }
 
@@ -58,6 +100,7 @@ public class UrlService(IUrlRepository urlRepository, IUnitOfWork unitOfWork) : 
         while(true)
         {
             var shortUrl = new char[shortUrlLength];
+            
             var random = new Random();
 
             for (var i = 0; i < shortUrlLength; i++)
