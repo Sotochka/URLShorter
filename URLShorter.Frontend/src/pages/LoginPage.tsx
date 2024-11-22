@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import axios from '../services/api'; // API service
+import { extractUserIdFromToken } from '../services/getUserId';
+
+
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -9,6 +12,13 @@ const LoginPage: React.FC = () => {
     e.preventDefault();
     try {
       const response = await axios.post('/auth/login', { email, password });
+
+      const userId = extractUserIdFromToken(response.data.token);
+      console.log('User ID:', userId);
+      if (userId) {
+        localStorage.setItem('userId', userId); // No conversion needed
+      }
+
       localStorage.setItem('token', response.data.token); // Save token
       window.location.href = '/main'; // Redirect to Main Page
     } catch (error) {

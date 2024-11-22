@@ -57,6 +57,7 @@ const MainPage: React.FC = () => {
       <button onClick={() => {
         localStorage.removeItem('token');
         localStorage.removeItem('userRole');
+        localStorage.removeItem('userId');
         window.location.reload();
       }}>Logout</button>
       <p>Enter a URL below to create a short version of it!</p>
